@@ -1,0 +1,30 @@
+### completion with data source indexed on Azure Search
+@Cars-index = magenta-card-gs6g9dmq0t
+@query1 = "can you tell me something about kia sportage quotation?"
+@query2 = "please summarize the file kia-portage-hev.pdf"
+@query3 = "what is the price of kia sportage?"
+
+curl -i -X POST {{openaiBaseUrl}}/openai/deployments/{{openaiDeploymentId}}/chat/completions?api-version={{openaiApiVersion}} \
+-H "Content-Type: application/json" \
+-H "api-key: {{openaiApiKey}}" \
+-d \
+'
+{
+    "data_sources": [
+        {
+            "type": "azure_search",
+            "parameters": {
+                "endpoint": "'{{aiSearchBaseUrl}}'",
+                "key": "'{{aiSearchApiKey}}'",
+                "index_name": "'{{Cars-index}}'"
+            }
+        }
+    ],
+    "messages": [
+        {
+            "role": "user",
+            "content": "'{{query3}}'"
+        }
+    ]
+}
+'
