@@ -1,0 +1,2 @@
+[Code interpreter](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/code-interpreter?tabs=python)
+[File search](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/file-search?tabs=python)

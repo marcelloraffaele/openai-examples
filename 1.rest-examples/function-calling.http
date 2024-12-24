@@ -1,0 +1,104 @@
+### list all assistants
+
+curl '{{openaiBaseUrl}}/openai/assistants?api-version={{openaiApiVersion}}' \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H 'Content-Type: application/json'
+
+###
+# @name assistantResponse
+curl -X POST '{{openaiBaseUrl}}/openai/assistants?api-version={{openaiApiVersion}}' \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "instructions": "You are a weather bot. Use the provided functions to answer questions.",
+  "name": "Weather Bot",
+  "tools":[{
+      "type": "function",
+    "function": {
+      "name": "get_weather",
+      "description": "Get the weather in location",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {"type": "string", "description": "The city name, for example San Francisco"}
+        },
+        "required": ["location"]
+      }
+    }
+  }],
+  "model": "{{openaiDeploymentId}}",
+  "tool_resources": {},
+  "temperature": 1,
+  "top_p": 1
+}'
+
+### get assistants
+@assistantId = {{assistantResponse.response.body.id}}
+curl '{{openaiBaseUrl}}/openai/assistants/{{assistantId}}?api-version={{openaiApiVersion}}' \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H 'Content-Type: application/json' \
+
+### create a thread
+# @name threadResponse
+curl -X POST "{{openaiBaseUrl}}/openai/threads?api-version=2024-08-01-preview" \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+
+###
+@threadId = {{threadResponse.response.body.id}}
+curl -X GET "{{openaiBaseUrl}}/openai/threads/{{threadId}}?api-version=2024-08-01-preview" \
+  -H 'api-key: {{openaiApiKey}}'
+
+### Add a user question to the thread
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/messages?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H "Content-Type: application/json" \
+  -d '{
+  "role": "user",
+  "content": "Hi, i live in Rome, can you tell me the weather?"
+}'
+
+### Run the thread
+# @name runResponse
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/runs?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H "Content-Type: application/json" \
+  -d '{
+    "assistant_id": "{{assistantId}}"
+  }'
+
+
+### Get the status of the run
+@runId = {{runResponse.response.body.id}}
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/runs/{{runId}}?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+
+### See the Assistant response
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/messages?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H "Content-Type: application/json" \
+
+### it continue with the call to the function get_weather
+
+### submit the weather response to the thread
+curl ""{{openaiBaseUrl}}/openai/threads/{{threadId}}/runs/{{runId}}/submit_tool_outputs?api-version={{openaiApiVersion}} \
+    -H 'api-key: {{openaiApiKey}}' \
+    -H "Content-Type: application/json" \
+    -d '{
+    "tool_outputs": [
+      {
+        "tool_call_id": "call_bbkchfpjYNfylv0m6VIGCzIQ",
+        "output": "Its sunny"
+      }
+    ]
+  }'
+
+### if i ask again the status of the run i got the result
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/runs/{{runId}}?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+
+### See the Assistant response
+curl "{{openaiBaseUrl}}/openai/threads/{{threadId}}/messages?api-version={{openaiApiVersion}}" \
+  -H 'api-key: {{openaiApiKey}}' \
+  -H "Content-Type: application/json" \
