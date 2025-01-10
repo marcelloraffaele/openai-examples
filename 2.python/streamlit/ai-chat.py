@@ -22,8 +22,6 @@ def call(sm, cm):
 # Set up the Streamlit app
 st.title("AI Chat")
 
-#st.button("Reset", on_click=lambda: st.session_state.update({"messages": [], "chatMessages": ""}))
-
 # Initialize session state for messages
 if "systemMessage" not in st.session_state:
     st.session_state.systemMessage = "You are a helpful assistant"
