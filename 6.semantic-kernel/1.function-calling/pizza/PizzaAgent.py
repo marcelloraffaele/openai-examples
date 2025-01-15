@@ -17,12 +17,10 @@ import os
 from dotenv import load_dotenv
 from OrderPizzaPlugin import OrderPizzaPlugin
 
-load_dotenv(
-    dotenv_path=".env",
-    override=True
-)
-
 async def main():
+
+    load_dotenv( override=True )
+
     # Initialize the kernel
     kernel = Kernel()
 
@@ -48,6 +46,7 @@ async def main():
 
     # Create a history of the conversation
     history = ChatHistory()
+    history.add_system_message("Hello! I'm a pizza ordering assistant. Don't answer to any other questions than the ones related to pizza ordering. Answer only in english.")
     history.add_user_message("I'd like to order a pizza!")
 
     # Initiate a back-and-forth chat

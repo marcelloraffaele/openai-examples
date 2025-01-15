@@ -52,12 +52,15 @@ class OrderPizzaPlugin:
         return {"total": total, "items": self.chart["pizzaList"]}
 
     @kernel_function(
-        description="Checkouts the user's cart; this function will retrieve the payment from the user and complete the order."
+        description="Checkouts the user's cart; this function will retrieve the address and the name of the user and complete the order."
     )
-    async def checkout(self):
+    async def checkout(self, address: str, name: str):
         total = 0
         for pizza in self.chart["pizzaList"]:
             total += pizza["price"]
         self.chart["pizzaList"] = []
-        print(f"checkout - Your total is ${total}. Thank you for your order!")
+        
+        #print all the informations
+        print(f"checkout - Your order has been placed. Your total is ${total}. Your order will be delivered to {address}. Thank you, {name}!")
+
         return {"total": total}
