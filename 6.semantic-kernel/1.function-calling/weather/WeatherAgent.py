@@ -15,7 +15,7 @@ from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_
 )
 import os
 from dotenv import load_dotenv
-from OrderPizzaPlugin import OrderPizzaPlugin
+from WeatherPlugin import WeatherPlugin
 
 async def main():
 
@@ -36,9 +36,9 @@ async def main():
     setup_logging()
     logging.getLogger("kernel").setLevel(logging.DEBUG)
 
-
     # Add the plugin to the kernel
-    kernel.add_plugin(OrderPizzaPlugin(), plugin_name="OrderPizza")
+    wp = WeatherPlugin(enableDebug=True)
+    kernel.add_plugin(wp, plugin_name="Weather")
 
     # Enable planning
     execution_settings = AzureChatPromptExecutionSettings()
@@ -46,12 +46,25 @@ async def main():
 
     # Create a history of the conversation
     history = ChatHistory()
-    history.add_system_message("You are a pizza ordering assistant. Don't answer to any other questions than the ones related to pizza ordering. Answer only in english.")
-    history.add_user_message("I'd like to order a pizza!")
-
+    history.add_system_message("You are a wheather assistant. You answer only to questions related to weather or geocode. Answer only in english or italian.")
+        
     # Initiate a back-and-forth chat
     userInput = None
+    print("digit exit to terminate the conversation, or ask a question about the weather or geocode")
     while True:
+
+        #get the weather in london
+
+        # Collect user input
+        userInput = input("User > ")
+
+        # Terminate the loop if the user says "exit"
+        if userInput == "exit":
+            break
+
+        # Add user input to the history
+        history.add_user_message(userInput)
+
         # Get the response from the AI
         response = await chat_completion.get_chat_message_content(
             chat_history=history,
@@ -65,15 +78,7 @@ async def main():
         # Add the message from the agent to the chat history
         history.add_message(response)
 
-        # Collect user input
-        userInput = input("User > ")
-
-        # Terminate the loop if the user says "exit"
-        if userInput == "exit":
-            break
-
-        # Add user input to the history
-        history.add_user_message(userInput)
+        
 
 # Run the main function
 if __name__ == "__main__":
